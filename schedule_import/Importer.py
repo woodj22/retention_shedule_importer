@@ -93,11 +93,6 @@ def import_csv(filepath):
             session.commit()
 
 
-
-
-
-
-
 def get_description_type_id(type, type_value):
     id= session.query(Description.id).filter_by(type=type, type_value=type_value).first()
     if id is not None:
@@ -106,8 +101,3 @@ def get_description_type_id(type, type_value):
 
 filepath = "/Users/BBCWood/Desktop/schedule_data_export.csv"
 import_csv(filepath)
-
-
-
-
-# print(d)
