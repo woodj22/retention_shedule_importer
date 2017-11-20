@@ -46,7 +46,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 def import_xlsx():
-    with open('schedule_data_export.csv', encoding='utf-8-sig') as csvfile:
+    with open('retention_schedule_asset_csv.csv', encoding='utf-8-sig') as csvfile:
         reader = csv.DictReader(csvfile, dialect='excel')
         assetCount = 0
         pivotCount = 0
@@ -66,16 +66,21 @@ def import_xlsx():
             )
             session.add(asset)
             session.commit()
-            assetCount +=1
+            assetCount += 1
+            unmatchedAssets = {}
             for type, value in types.items():
-                description = session.query(Description).filter(Description.type == value).first()
-                pivot = Pivot(asset_id=asset.id, description_id = description.id)
-                session.add(pivot)
-                session.commit()
-                pivotCount += 1
 
+                description = session.query(Description).filter(Description.type == value).filter(Description.type_value == row[type]).first()
+
+                if description is not None:
+                    pivot = Pivot(asset_id=asset.id, description_id=description.id)
+                    session.add(pivot)
+                    session.commit()
+                    pivotCount += 1
+                else:
+                    unmatchedAssets[row[type]] = type
+    print(unmatchedAssets)
     print("Assets imported: ", assetCount, "Pivot joins created: ", pivotCount)
-
 
 if __name__ == "__main__" :
     import_xlsx()
